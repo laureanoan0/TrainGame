@@ -146,7 +146,7 @@ public class WeaponShopButton : MonoBehaviour, IWeaponShopButton
         ammunitionText.text = FormatStat (stockInfo.WeaponData.ammun);
         rofText.text = FormatStat(cooldown);
 
-        weaponImage.sprite = stockInfo.GunSprite;
+        weaponImage.sprite = stockInfo.WeaponSprite;
 
         if(stockInfo is WeaponWithLegacyInStockSO)
         {

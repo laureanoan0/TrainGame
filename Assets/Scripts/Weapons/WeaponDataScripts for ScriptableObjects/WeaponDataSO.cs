@@ -18,4 +18,6 @@ public class WeaponDataSO : ScriptableObject
     [Header("Ammun")]
     [SerializeField] public int ammun;
 
+    [Header("Ammun")]
+    [SerializeField] public Sprite weaponSprite;
 }
