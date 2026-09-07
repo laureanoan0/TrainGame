@@ -22,14 +22,13 @@ public class StoreUiInteracts : MonoBehaviour
     private void OnEnable()
     {
         EventBus.Subscribe<OnInteractPressedEvent>(OnPlayerInteractEvent);
-        closeButton.onClick.AddListener(DeactivateUI);
-
         EventBus.Subscribe<OnForceCloseAllUI>(ForceCloseUI);
+
+        closeButton.onClick.AddListener(DeactivateUI);
 
         ServiceLocator.Register(this);
 
         pauseAction = InputSystem.actions.FindAction("Pause");
-
 
         if (pauseAction != null)
         {
@@ -40,7 +39,11 @@ public class StoreUiInteracts : MonoBehaviour
     private void OnDisable()
     {
         EventBus.Unsubscribe<OnInteractPressedEvent>(OnPlayerInteractEvent);
+        EventBus.Unsubscribe<OnForceCloseAllUI>(ForceCloseUI);
+
         closeButton.onClick.RemoveListener(DeactivateUI);
+
+        ServiceLocator.Unregister<StoreUiInteracts>();
 
         if (pauseAction != null)
         {

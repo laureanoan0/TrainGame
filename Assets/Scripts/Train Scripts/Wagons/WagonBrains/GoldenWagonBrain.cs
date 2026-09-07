@@ -35,6 +35,7 @@ public class GoldenWagonBrain : WagonBrain
     {
         base.Start();
         collector = new GoldCollector(hpController, currentGoldUI, storageCapacity, setGoldCoins);
+        ServiceLocator.Register<WagonHP>(hpController);
     }
 
     public override void OnDestroy()
