@@ -25,7 +25,7 @@ public class MainMenuButtons : MonoBehaviour
         settingsButton.onClick.AddListener(OpenSettings);
         closeSettingsButton.onClick.AddListener(CloseSettings);
 
-        float savedMasterVolume = PlayerPrefs.GetFloat("MasterVolume", 1f);
+        float savedMasterVolume = PlayerPrefs.GetFloat("MasterVolume", 0.2f);
         float savedMusicVolume = PlayerPrefs.GetFloat("MusicVolume", 1f);
         float savedSFXVolume = PlayerPrefs.GetFloat("SFXVolume", 1f);
 

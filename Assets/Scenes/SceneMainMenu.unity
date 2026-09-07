@@ -436,6 +436,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: PauseMenuManager_
       objectReference: {fileID: 0}
+    - target: {fileID: 5431098986266513804, guid: 270684308eb34b642ae15d23776e1e25, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1340,6 +1344,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SceneTransitionManager
       objectReference: {fileID: 0}
+    - target: {fileID: 4693098759209958032, guid: 63fc0b6531d6c20489d57562b6b9d4c0, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7467923218527910523, guid: 63fc0b6531d6c20489d57562b6b9d4c0, type: 3}
       propertyPath: m_LocalPosition.x
       value: 326.10992
@@ -1428,6 +1436,10 @@ PrefabInstance:
     - target: {fileID: 482908733332110103, guid: 1d040a195e37e044da6c3b5f181881ba, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 2.3322144
+      objectReference: {fileID: 0}
+    - target: {fileID: 525013105184136891, guid: 1d040a195e37e044da6c3b5f181881ba, type: 3}
+      propertyPath: m_Value
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 884010208205832627, guid: 1d040a195e37e044da6c3b5f181881ba, type: 3}
       propertyPath: m_AnchorMax.y
