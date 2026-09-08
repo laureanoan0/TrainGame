@@ -24,4 +24,4 @@ MonoBehaviour:
         cooldown: 4
         damage: 2
         adjacentDamageMultiplier: 0.5
-        dynamitePrefab: {fileID: 4306146407265252169, guid: 58feaafcbcc782a4989c71706838c93e, type: 3}
+        dynamitePrefab: {fileID: 4306146407265252169, guid: 021c02ed60d26e14ba66ed9ee139cefd, type: 3}
