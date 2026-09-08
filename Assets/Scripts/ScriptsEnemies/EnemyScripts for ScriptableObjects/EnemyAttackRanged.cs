@@ -20,4 +20,16 @@ public class EnemyAttackRanged : EnemyAttackSO
 
         }
     }
+
+    public override void Skill(Enemy enemy)
+    {
+        if (enemy.Target == null) return;
+        if (!enemy.CanSkill) return;
+
+        if (enemy.CanSkill && enemy.Skill != null)
+        {
+            enemy.Skill.Play(enemy);
+            enemy.ResetSkillCooldown(enemy.Skill.Cooldown);
+        }
+    }
 }

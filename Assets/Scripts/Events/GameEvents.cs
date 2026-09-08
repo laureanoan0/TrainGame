@@ -12,6 +12,17 @@ public class OnGoldEarnedEvent : IGameEvent
     }
 }
 
+public class OnCoalEarnedEvent : IGameEvent
+{
+    public float Amount;
+
+    public OnCoalEarnedEvent(float amount)
+    {
+        Amount = amount;
+    }
+
+}
+
 public class OnGoldBoxChangedEvent : IGameEvent
 {
     public float CurrentGold;
@@ -76,9 +87,12 @@ public class OnEnemyDeathEvent : IGameEvent
 {
     public UnityEngine.Vector3 Position;
 
-    public OnEnemyDeathEvent(UnityEngine.Vector3 position)
+    public DropType DropType;
+
+    public OnEnemyDeathEvent(UnityEngine.Vector3 position, DropType dropType)
     {
         Position = position;
+        DropType = dropType;
     }
 }
 
@@ -168,6 +182,11 @@ public class OnTakeFuelEvent : IGameEvent
 public class OnTakeGoldEvent : IGameEvent
 {
     public OnTakeGoldEvent() { }
+}
+
+public class OnTakeCoalEvent : IGameEvent
+{
+    public OnTakeCoalEvent() { }
 }
 
 public class OnDropFuelEvent : IGameEvent

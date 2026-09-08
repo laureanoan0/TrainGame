@@ -1,14 +1,21 @@
+using TMPro;
 using UnityEngine;
 
 public class LocomotiveBrain : MonoBehaviour, IDamagable, IWagon
 {
     [SerializeField] public Transform TailRef;
 
+    [SerializeField] private Transform coalBox;
+
     [SerializeField] private float CM;
     [SerializeField] private float EM;
     [SerializeField] private float RES;
 
     [SerializeField] private Renderer shieldsRenderer;
+
+    [Header("UI")]
+
+    [SerializeField] private TextMeshProUGUI currentCoalUI;
 
     [Header("Cinematic")]
     [SerializeField] private string locomotiveAnchorKey = "Locomotive";
@@ -28,17 +35,22 @@ public class LocomotiveBrain : MonoBehaviour, IDamagable, IWagon
     private StatSystem stats;
     private bool started = false;
 
+    private CoalCollector coalCollector;
+    public CoalCollector CoalCollector => coalCollector;
+
     public float CurrentShield => fuelController.CurrentShield;
     public float MaxShield => fuelController.MaxShield;
     public Transform Transform => transform;
 
-    void Start()
+    void Awake()
     {
+        var dataRef = ServiceLocator.Get<TrainData>();
+        coalCollector = new CoalCollector(currentCoalUI);
+        dataRef.SetCoalBox(coalBox);
         stats = RunManager.Instance.StatSystem;
         flash = GetComponent<DamageFlash>();
         animator = GetComponent<Animator>();
         particleSequence = GetComponent<ParticleSequenceController>();
-
         fuelController = new LocomotiveFuel(
             EM * stats.GetStat(StatType.Defense),
             CM * stats.GetStat(StatType.MaxHp),
@@ -46,6 +58,7 @@ public class LocomotiveBrain : MonoBehaviour, IDamagable, IWagon
             stats.GetStat(StatType.FuelOptimizer),
             shieldsRenderer
         );
+
 
         renderController = new LocomotiveRenderController(this);
 

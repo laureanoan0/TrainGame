@@ -1,11 +1,11 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class CollectGoldFromWagon : MonoBehaviour
+public class CollectCoalFromLocomotive : MonoBehaviour
 {
     PlayerBrain playerRef;
     [SerializeField] private InputActionAsset inputActions;
-    [SerializeField] private GoldenWagonBrain goldBrain;
+    [SerializeField] private LocomotiveBrain coalBrain;
     [SerializeField] private BoxCollider boxCollider;
     InteractInputHandler inputHandler;
 
@@ -13,32 +13,36 @@ public class CollectGoldFromWagon : MonoBehaviour
 
     private void Awake()
     {
-        EventBus.Subscribe<OnEnemyKilledEvent>(CallCollectGoldEvent);
+        EventBus.Subscribe<OnEnemyKilledEvent>(CallCollectCoalEvent);
     }
     void Start()
     {
-        boxCollider.enabled = false;
-
         inputActions.Enable();
         var interactAction = inputActions.FindAction("Player/Interact");
-        inputHandler = new InteractInputHandler(interactAction, SetGoldInPlayerInventory);
+        inputHandler = new InteractInputHandler(interactAction, SetCoalInPlayerInventory);
 
         if (!GameManager.Instance.IsTutorial) Activate();
     }
 
     private void OnDestroy()
     {
-        EventBus.Unsubscribe<OnEnemyKilledEvent>(CallCollectGoldEvent);
+        EventBus.Unsubscribe<OnEnemyKilledEvent>(CallCollectCoalEvent);
         inputHandler.Dispose();
     }
 
-    private void SetGoldInPlayerInventory()
+    private void SetCoalInPlayerInventory()
     {
         if (!canInteract) return;
-
-        if (playerRef != null)
+        if (playerRef == null) return;
+        Debug.Log("SetCoalBefore has coal check" + playerRef.Inventory.HasCoal);
+        if (!playerRef.Inventory.HasCoal && coalBrain.CoalCollector.HasCoal)
         {
-            playerRef.Inventory.GoldAmount += goldBrain.Collector.GiveGold();
+            playerRef.Inventory.CollectCoal();
+            EventBus.Publish(new OnTakeCoalEvent());
+        }
+        else
+        {
+            Debug.Log("Has coal should be true: " + playerRef.Inventory.HasCoal);
         }
     }
 
@@ -57,7 +61,7 @@ public class CollectGoldFromWagon : MonoBehaviour
         }
     }
 
-    private void CallCollectGoldEvent(OnEnemyKilledEvent enemyKillEvent)
+    private void CallCollectCoalEvent(OnEnemyKilledEvent enemyKillEvent)
     {
         Activate();
     }
@@ -65,6 +69,5 @@ public class CollectGoldFromWagon : MonoBehaviour
     void Activate()
     {
         canInteract = true;
-        boxCollider.enabled = true;
     }
 }

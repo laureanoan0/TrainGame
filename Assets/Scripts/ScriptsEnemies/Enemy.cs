@@ -1,8 +1,4 @@
-using NUnit.Framework;
-using System;
 using System.Collections.Generic;
-using Unity.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class Enemy : MonoBehaviour
@@ -31,6 +27,7 @@ public class Enemy : MonoBehaviour
     public float MaxHealth => data.health;
     public float Damage => data.damage;
     public float Cooldown => data.attackCooldown;
+    public DropType Drop => data.drop;
 
     public List<IWagon> TargetList => targetList;
     public Transform Target => target;
@@ -39,15 +36,17 @@ public class Enemy : MonoBehaviour
     public (float, float) Limits => limits;
     public bool moveRight;
 
-    public bool CanAttack => attackCooldownTimer <= 0f;
     float attackCooldownTimer;
+    float skillCooldownTimer;
 
-    private bool isOnScreen;
-    public bool IsOnScreen => isOnScreen;
+    public bool CanAttack => attackCooldownTimer <= 0f;
+    public bool CanSkill => skillCooldownTimer <=0f;
 
+    
     public EnemySkillSO Skill => data.skill;
 
-    public Camera Cam => Camera.main;
+    private float spawnTime;
+    public float TimeAlive => Time.time - spawnTime;
 
     public void Initialize(EnemyData data)
     {
@@ -57,6 +56,7 @@ public class Enemy : MonoBehaviour
 
         this.data = data;
         currentHealth = MaxHealth;
+        spawnTime = Time.time;
         weaponPosition = GetComponentInChildren<Transform>();
         var WeaponGO = Instantiate(weapon, weaponPosition);
         Weapon = WeaponGO.GetComponent<EnemyWeapon>();
@@ -81,11 +81,18 @@ public class Enemy : MonoBehaviour
         attackCooldownTimer = cooldown;
     }
 
-    void Update()
+    public void ResetSkillCooldown(float cooldown)
     {
-        attackCooldownTimer -= Time.deltaTime;
-        Attack?.Attack(this);
+        skillCooldownTimer = cooldown;
     }
+
+void Update()
+{
+    attackCooldownTimer -= Time.deltaTime;
+    skillCooldownTimer -= Time.deltaTime;
+    Attack?.Attack(this);
+    Attack?.Skill(this);
+}
 
     void FixedUpdate()
     {
@@ -123,20 +130,18 @@ public class Enemy : MonoBehaviour
 
     private void Dead()
     {
-        isOnScreen = CameraView.IsInsideCamera(transform.position, Cam);
-        if (UnityEngine.Random.Range(1, 1001) < 999)
-        {
-            AudioManager.Instance.PlayOnScreen($"SFXDeathScream{UnityEngine.Random.Range(1,3)}", IsOnScreen);
-        }
-        else
-        {
-            AudioManager.Instance.PlayOnScreen("SFXDeathScream4", IsOnScreen);
-        }
         if (healthBar != null)
         { healthBar.Hide(); }
         flash.ResetMaterials();
-        EventBus.Publish(new OnGoldEarnedEvent(data.gold));
-        EventBus.Publish(new OnEnemyDeathEvent(transform.position));
+        if (Drop == DropType.Coal)
+        {
+            EventBus.Publish(new OnCoalEarnedEvent(data.dropAmount));
+        }
+        else if (Drop == DropType.Gold)
+        {
+            EventBus.Publish(new OnGoldEarnedEvent(data.dropAmount));
+        }
+        EventBus.Publish(new OnEnemyDeathEvent(transform.position, data.drop));
         EventBus.Publish(new OnEnemyKilledEvent());
         ObjectPoolManager.ReturnObjectToPool(gameObject);
     }
