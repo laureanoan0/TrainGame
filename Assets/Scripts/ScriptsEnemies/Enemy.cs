@@ -48,6 +48,8 @@ public class Enemy : MonoBehaviour
     private float spawnTime;
     public float TimeAlive => Time.time - spawnTime;
 
+    public Camera Cam => Camera.main;
+
     public void Initialize(EnemyData data)
     {
         StopAllCoroutines();
