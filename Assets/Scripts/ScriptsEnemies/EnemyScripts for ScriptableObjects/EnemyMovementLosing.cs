@@ -29,7 +29,7 @@ public class EnemyMovementLosing : EnemyMovementSO
         }
 
         // =========================
-        // COMPORTAMIENTO NORMAL (mientras no está perdiendo)
+        // COMPORTAMIENTO NORMAL (mientras no esta perdiendo)
         // =========================
         float minZ = enemy.Limits.Item1;
         float maxZ = enemy.Limits.Item2;

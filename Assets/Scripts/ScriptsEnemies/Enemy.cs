@@ -19,9 +19,9 @@ public class Enemy : MonoBehaviour
     private (float, float) limits;
 
     public IEnemyWeapon Weapon;
-    public IEnemyMovement Movement => data.movement;
-    public IEnemyAttack Attack => data.attack;
-    public IEnemyBrain Brain => data.brain;
+    public EnemyMovementSO Movement => data.movement;
+    public EnemyAttackSO Attack => data.attack;
+    public EnemyBrainSO Brain => data.brain;
     public Rigidbody rb;
     public float Speed => data.speed;
     public float MaxHealth => data.health;
@@ -40,7 +40,7 @@ public class Enemy : MonoBehaviour
     float skillCooldownTimer;
 
     public bool CanAttack => attackCooldownTimer <= 0f;
-    public bool CanSkill => skillCooldownTimer <=0f;
+    public bool CanSkill => skillCooldownTimer <= 0f;
 
     
     public EnemySkillSO Skill => data.skill;
@@ -63,6 +63,8 @@ public class Enemy : MonoBehaviour
         var WeaponGO = Instantiate(weapon, weaponPosition);
         Weapon = WeaponGO.GetComponent<EnemyWeapon>();
         rb = GetComponent<Rigidbody>();
+        skillCooldownTimer = Skill.Cooldown;
+        attackCooldownTimer = data.attackCooldown;
 
         Brain.Begin(this);
 

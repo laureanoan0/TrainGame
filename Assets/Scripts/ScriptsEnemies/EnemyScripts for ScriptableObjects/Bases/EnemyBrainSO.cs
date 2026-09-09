@@ -1,10 +1,21 @@
 using UnityEngine;
 
-public abstract class EnemyBrainSO : ScriptableObject, IEnemyBrain
+[CreateAssetMenu(menuName = "Enemy/Brain")]
+
+public  class EnemyBrainSO : ScriptableObject
 {
-    public abstract void Begin(Enemy enemy);
+    public void Begin(Enemy enemy)
+    {
+        
+    }
 
-    public abstract Transform SetTarget(Enemy enemy);
+    public Transform SetTarget(Enemy enemy)
+    {
+        return enemy.TargetList[Random.Range(0 , enemy.TargetList.Count)].Transform;
+    }
 
-    public abstract void Tick(Enemy enemy);
+    public void Tick(Enemy enemy)
+    {
+        throw new System.NotImplementedException();
+    }
 }
