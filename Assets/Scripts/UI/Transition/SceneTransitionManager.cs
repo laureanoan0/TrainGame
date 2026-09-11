@@ -10,7 +10,6 @@ public class SceneTransitionManager : MonoBehaviour
 
     [Header("Transition Settings")]
     [SerializeField] private GameObject transitionRootCanvas;
-    [SerializeField] private Image fadeImage;
     [SerializeField] private TMP_Text stationText;
     [SerializeField] private CanvasGroup canvasGroup;
 
@@ -55,14 +54,8 @@ public class SceneTransitionManager : MonoBehaviour
 
         if (canvasGroup != null)
         {
-            canvasGroup.alpha = 1f;
             canvasGroup.blocksRaycasts = true;
             canvasGroup.interactable = true;
-        }
-
-        if (fadeImage != null)
-        {
-            fadeImage.raycastTarget = true;
         }
 
         if (stationText != null)
@@ -72,8 +65,10 @@ public class SceneTransitionManager : MonoBehaviour
 
         stationText.text = GetTransitionText(transitionType);
 
-        yield return FadeImage(0f, 1f);
-        yield return FadeText(0f, 1f);
+        Coroutine imageFadeIn = StartCoroutine(FadeImage(0f, 1f));
+        Coroutine textFadeIn = StartCoroutine(FadeText(0f, 1f));
+        yield return imageFadeIn;
+        yield return textFadeIn;
 
         yield return new WaitForSecondsRealtime(textStayDuration);
 
@@ -135,11 +130,9 @@ public class SceneTransitionManager : MonoBehaviour
 
     private void SetFadeAlpha(float alpha)
     {
-        if (fadeImage == null) return;
+        if (canvasGroup == null) return;
 
-        Color color = fadeImage.color;
-        color.a = alpha;
-        fadeImage.color = color;
+        canvasGroup.alpha = alpha;
     }
 
     private void SetTextAlpha(float alpha)
@@ -198,14 +191,8 @@ public class SceneTransitionManager : MonoBehaviour
 
         if (canvasGroup != null)
         {
-            canvasGroup.alpha = 0f;
             canvasGroup.blocksRaycasts = false;
             canvasGroup.interactable = false;
-        }
-
-        if (fadeImage != null)
-        {
-            fadeImage.raycastTarget = false;
         }
 
         if (stationText != null)
