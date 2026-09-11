@@ -10,11 +10,14 @@ public class UnlockedLegacy
         //Spencer
         EventBus.Subscribe<OnUpdatedSpencerLegado>(UpdateSpencer);
 
-        //Spencer
+        //Coach
         EventBus.Subscribe<OnUpdatedCoachLegado>(UpdateCoach);
+
+        //Colt
+        EventBus.Subscribe<OnUpdatedColtLegado>(UpdateColt);
     }
 
-    public int LeftPoints = 100;
+    public int LeftWinchesterPoints = 100;
 
     public bool UnlockedWinchester = false;
 
@@ -22,11 +25,13 @@ public class UnlockedLegacy
 
     public bool UnlockedCoach = false;
 
+    public bool UnlockedColt = false;
+
     public void UpdateLeftPointWinchester(OnUpdateWinchesterLegadoLeftPoint updateEvent)
     {
-        LeftPoints -= updateEvent.point;
+        LeftWinchesterPoints -= updateEvent.point;
 
-        if (LeftPoints <= 0)
+        if (LeftWinchesterPoints <= 0)
         {
             UnlockedWinchester = true;
 
@@ -48,10 +53,18 @@ public class UnlockedLegacy
         EventBus.Publish(new OnUnlockCoachLegado());
     }
 
+    public void UpdateColt(OnUpdatedColtLegado updateEvent)
+    {
+        UnlockedColt = true;
+
+        EventBus.Publish(new OnUnlockColtLegado());
+    }
+
     public void UnsuscribeEvents()
     {
         EventBus.Unsubscribe<OnUpdateWinchesterLegadoLeftPoint>(UpdateLeftPointWinchester);
         EventBus.Unsubscribe<OnUpdatedSpencerLegado>(UpdateSpencer);
         EventBus.Unsubscribe<OnUpdatedCoachLegado>(UpdateCoach);
+        EventBus.Unsubscribe<OnUpdatedColtLegado>(UpdateColt);
     }
 }

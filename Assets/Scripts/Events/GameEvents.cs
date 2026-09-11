@@ -412,4 +412,31 @@ public class OnUnlockCoachLegado : IGameEvent
 
 #endregion
 
+#region Colt Events
+
+public class OnColtDetectedDeadEnemy : IGameEvent
+{
+    public int point;
+    public OnColtDetectedDeadEnemy(int point)
+    {
+        this.point = point;
+    }
+}
+
+public class OnUpdatedColtLegado : IGameEvent
+{
+    public OnUpdatedColtLegado()
+    {
+    }
+}
+
+public class OnUnlockColtLegado : IGameEvent
+{
+    public OnUnlockColtLegado()
+    {
+    }
+}
+
+#endregion
+
 #endregion

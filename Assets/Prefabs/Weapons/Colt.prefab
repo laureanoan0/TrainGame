@@ -9,9 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1978755731953740450}
-  - component: {fileID: -758747024695075256}
+  - component: {fileID: -7753929509118570386}
   m_Layer: 0
-  m_Name: Coach
+  m_Name: Colt
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -32,7 +32,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &-758747024695075256
+--- !u!114 &-7753929509118570386
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -41,14 +41,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 3090599529195725496}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3645be75732684547ae9bbf278219cf5, type: 3}
+  m_Script: {fileID: 11500000, guid: 7e9755360e3763c469805be886a9c90c, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Coach_Weapon
-  weaponName: Coach
-  weaponData: {fileID: 11400000, guid: 6c88ea346dc8f444db0535b26a1b97dd, type: 2}
-  pelletCount: 6
-  spreadAngle: 60
-  bulletData: {fileID: 11400000, guid: d18847aa444346842aa98a3a694f0934, type: 2}
-  legadoBulletData: {fileID: 11400000, guid: bb11794833b79bd46b02ef1d93d10f59, type: 2}
-  requireEnemyDefetead: 4
-  maxCoachCharge: 1.5
+  m_EditorClassIdentifier: Assembly-CSharp::Colt_Weapon
+  weaponName: Colt
+  weaponData: {fileID: 11400000, guid: 9ed0b8567c4a1e44ea6059f7da48bda1, type: 2}
+  bulletData: {fileID: 11400000, guid: e98148a333c5f5f4ca7a5a1108355e88, type: 2}
+  legacyBulletData: {fileID: 11400000, guid: f6db4e3702b295d44b581aa9af942aa5, type: 2}
+  bulletSpreadAngle: 1.5
+  unlockLegacyCondition: 1

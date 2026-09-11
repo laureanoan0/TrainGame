@@ -11,8 +11,11 @@ public class Colt_Weapon : MonoBehaviour, IWeapons
     [Header("Weapon data")]
     [SerializeField] private WeaponDataSO weaponData;
 
+    private BulletTypeScriptable currentBulletUse;
+
     [Header("Bullet data")]
     [SerializeField] private BulletTypeScriptable bulletData;
+    [SerializeField] private BulletTypeScriptable legacyBulletData;
     public WeaponDataSO WeaponData { get => weaponData; set => weaponData = value; }
 
     private int currentAmmunition;
@@ -35,6 +38,15 @@ public class Colt_Weapon : MonoBehaviour, IWeapons
     private BulletPool bulletPool;
     public BulletPool BulletPool => bulletPool;
 
+    [Header("Bullet spread")]
+    [SerializeField] private float bulletSpreadAngle = 10f;
+
+    private bool unlockedLegacy = false;
+
+    [Header("Legacy unlock condition")]
+    [SerializeField] private int unlockLegacyCondition = 1;
+    private int curretEnemiesDefetead = 0;
+
     public void InitializeWeapon(BulletPool pool, PlayerAttackController playerAttack)
     {
         bulletPool = pool;
@@ -43,11 +55,28 @@ public class Colt_Weapon : MonoBehaviour, IWeapons
         var statsRef = ServiceLocator.Get<StatSystem>();
         rateOfFire = WeaponData.rateOfFire / statsRef.GetStat(StatType.AttackSpeed);
         reloadTime = WeaponData.reloadTime / statsRef.GetStat(StatType.AttackSpeed);
+
+        EventBus.Subscribe<OnColtDetectedDeadEnemy>(UpdateDefeteadEnemies);
+        EventBus.Subscribe<OnUnlockColtLegado>(UpdateCurrentBullet);
+
+        PlayerData playerData = ServiceLocator.Get<PlayerData>();
+
+        if (playerData.unlockedLegado.UnlockedCoach)
+        {
+            currentBulletUse = legacyBulletData;
+            reloadTime = 0f;
+            unlockedLegacy = true;
+        }
+        else
+        {
+            currentBulletUse = bulletData;
+        }
     }
 
     public void DestroyWeapon()
     {
-        Debug.Log("Arma destruida");
+        EventBus.Unsubscribe<OnColtDetectedDeadEnemy>(UpdateDefeteadEnemies);
+        EventBus.Unsubscribe<OnUnlockColtLegado>(UpdateCurrentBullet);
     }
 
     public void Tick(float deltaTime)
@@ -66,7 +95,7 @@ public class Colt_Weapon : MonoBehaviour, IWeapons
             if (IsReloading) return;
 
             Shoot(playerAtkReference.spawnPoint);
-            Shoot(playerAtkReference.spawnPoint);
+
             EventBus.Publish(new OnShootEvent(rateOfFire));
             EventBus.Publish(new OnAmmoChangedEvent(currentAmmunition));
             waitToFire = 0;
@@ -78,14 +107,37 @@ public class Colt_Weapon : MonoBehaviour, IWeapons
         if (IsReloading) return;
         if (spawnPoint == null) return;
 
+        if (unlockedLegacy == false)
+        {
+            if (curretEnemiesDefetead >= unlockLegacyCondition)
+            {
+                Debug.Log("Legado de colt desbloquado");
+                EventBus.Publish(new OnUpdatedColtLegado());
+            }
+        }
+
         var data = WeaponData;
         bulletData.Damage = data.damage;
-        BulletPool.ShootObject(spawnPoint.position, spawnPoint.rotation, bulletData);
 
-        CurrentAmmunition -= 1;
+        Vector3 spawnPositionRight = spawnPoint.position + spawnPoint.right * bulletSpreadAngle;
+        BulletPool.ShootObject(spawnPositionRight, spawnPoint.rotation, bulletData);
 
-        if (CurrentAmmunition == 0)
+        Vector3 spawnPositionLeft = spawnPoint.position - spawnPoint.right * bulletSpreadAngle;
+        BulletPool.ShootObject(spawnPositionLeft, spawnPoint.rotation, bulletData);
+
+        CurrentAmmunition -= 2;
+
+        if (CurrentAmmunition <= 0)
         {
+            if (unlockedLegacy == false)
+            {
+                if (curretEnemiesDefetead < unlockLegacyCondition)
+                {
+                    Debug.Log("Legado de colt no desbloquado");
+                    curretEnemiesDefetead = 0;
+                }
+            }
+
             IsReloading = true;
             EventBus.Publish(new OnReloadEvent(reloadTime));
         }
@@ -128,5 +180,19 @@ public class Colt_Weapon : MonoBehaviour, IWeapons
         IsReloading = false;
         AudioManager.Instance.Play($"SFXDefaultShot");
         EventBus.Publish(new OnAmmoChangedEvent(currentAmmunition));
+    }
+
+    private void UpdateDefeteadEnemies(OnColtDetectedDeadEnemy updateEvent)
+    {
+        Debug.Log("Se derroto un enemigo de la colt");
+        curretEnemiesDefetead += updateEvent.point;
+    }
+
+    private void UpdateCurrentBullet(OnUnlockColtLegado unlockEvent)
+    {
+        Debug.Log("Finalizado desbloqueo de colt");
+        currentBulletUse = legacyBulletData;
+        reloadTime = 0f;
+        unlockedLegacy = true;
     }
 }

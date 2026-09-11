@@ -11,27 +11,32 @@ public class Coach_Weapon : MonoBehaviour, IWeapons
     [Header("Weapon data")]
     [SerializeField] private WeaponDataSO weaponData;
 
-    [Header("Pellet count")]
+    [Header("bullet dispersion")]
     [SerializeField] private int pelletCount;
-
-    [Header("Spreed Angle")]
     [SerializeField] private float spreadAngle;
 
     [Header("Bullet data")]
     [SerializeField] private BulletTypeScriptable bulletData;
-
-    [Header("Legado Bullet data")]
     [SerializeField] private BulletTypeScriptable legadoBulletData;
 
     private BulletTypeScriptable currentBulletUse;
 
     [Header("Require Enemies Defetead")]
     [SerializeField] private int requireEnemyDefetead = 4;
-
     private int currentEnemiesDefetead = 0;
 
-    [Header("Max Coach Charge")]
-    [SerializeField] private float maxCoachCharge = 1.5f;
+    [Header("Legacy charge data")]
+    [Header("Mid level")]
+    [SerializeField] private float midChargeTime = 0.5f;
+    [SerializeField] private int midPelletCount = 4;
+    [SerializeField] private float midSpreedRange = 40f;
+    [SerializeField] private float midDamageMult = 1.5f;
+
+    [Header("Max level")]
+    [SerializeField] private float maxChargeTime = 1f;
+    [SerializeField] private int maxPelletCount = 2;
+    [SerializeField] private float maxSpreedRange = 20f;
+    [SerializeField] private float maxDamageMult = 3f;
 
     private float currentCoachCharge = 0f;
 
@@ -57,8 +62,7 @@ public class Coach_Weapon : MonoBehaviour, IWeapons
     private BulletPool bulletPool;
     public BulletPool BulletPool => bulletPool;
 
-
-    private bool unlockedLegado = false;
+    private bool unlockedLegacy = false;
 
     public void InitializeWeapon(BulletPool pool, PlayerAttackController playerAttack)
     {
@@ -77,12 +81,13 @@ public class Coach_Weapon : MonoBehaviour, IWeapons
         if (playerData.unlockedLegado.UnlockedCoach)
         {
             currentBulletUse = legadoBulletData;
-            unlockedLegado = true;
+            unlockedLegacy = true;
         }
         else
         {
             currentBulletUse = bulletData;
         }
+        
     }
 
     public void DestroyWeapon()
@@ -96,94 +101,64 @@ public class Coach_Weapon : MonoBehaviour, IWeapons
     {
         ChargeTimers();
 
-        if (playerAtkReference.IsAttacking)
+        if (unlockedLegacy == false)
         {
-            Attack();
-        }
-    }
-
-    public void Shoot(Transform spawnPoint)
-    {
-        if (IsReloading) return;
-        if (spawnPoint == null) return;
-
-        if (unlockedLegado == false)
-        {
-            if(currentEnemiesDefetead >= requireEnemyDefetead)
+            if (playerAtkReference.IsAttacking)
             {
-                EventBus.Publish(new OnUpdatedCoachLegado());
-                Debug.Log("Legado de Coach desbloqueado");
-            }
-            else
-            {
-                currentEnemiesDefetead = 0;
-            }
-        }
-
-        var data = WeaponData;
-        currentBulletUse.Damage = data.damage;
-
-        //pelletCount = 8;
-        //spreadAngle = 45f;
-
-        RealeasedBullet(spawnPoint);
-    }
-
-    private void RealeasedBullet(Transform spawnPoint)
-    {
-        if(unlockedLegado == false)
-        {
-            float angleStep = pelletCount > 1 ? spreadAngle / (pelletCount - 1) : 0f;
-            float startAngle = -spreadAngle / 2f;
-
-            for (int i = 0; i < pelletCount; i++)
-            {
-                float currentAngle = startAngle + angleStep * i;
-
-                Quaternion spreadRotation = Quaternion.AngleAxis(currentAngle, Vector3.up);
-                Quaternion finalRotation = spreadRotation * spawnPoint.rotation;
-
-                BulletPool.ShootObject(spawnPoint.position, finalRotation, currentBulletUse);
-            }
-
-            CurrentAmmunition -= CurrentAmmunition;
-
-            if (CurrentAmmunition == 0)
-            {
-                IsReloading = true;
-                EventBus.Publish(new OnReloadEvent(reloadTime));
+                Attack();
             }
         }
         else
         {
-            //currentCoachCharge += Time.deltaTime;
-
-            float angleStep = pelletCount > 1 ? spreadAngle / (pelletCount - 1) : 0f;
-            float startAngle = -spreadAngle / 2f;
-
-            for (int i = 0; i < pelletCount; i++)
+            if (waitToFire > rateOfFire)
             {
-                float currentAngle = startAngle + angleStep * i;
+                if (IsReloading) return;
 
-                Quaternion spreadRotation = Quaternion.AngleAxis(currentAngle, Vector3.up);
-                Quaternion finalRotation = spreadRotation * spawnPoint.rotation;
-
-                BulletPool.ShootObject(spawnPoint.position, finalRotation, currentBulletUse);
-            }
-
-            CurrentAmmunition -= CurrentAmmunition;
-
-            if (CurrentAmmunition == 0)
-            {
-                IsReloading = true;
-                EventBus.Publish(new OnReloadEvent(reloadTime));
+                if (playerAtkReference.IsAttacking == true)
+                {
+                    currentCoachCharge += Time.deltaTime;
+                    Debug.Log(currentCoachCharge);
+                }
+                else if(playerAtkReference.IsAttacking == false && currentCoachCharge > 0)
+                {
+                    CalculateChargeAttack();
+                    EventBus.Publish(new OnShootEvent(rateOfFire));
+                    EventBus.Publish(new OnAmmoChangedEvent(currentAmmunition));
+                    waitToFire = 0;
+                }
             }
         }
     }
 
-    public void RestockBullets()
+    private void CalculateChargeAttack()
     {
-        currentAmmunition = weaponData.ammun;
+        if (currentCoachCharge < midChargeTime)
+        {
+            var data = WeaponData;
+            currentBulletUse.Damage = data.damage;
+
+            ReleaseChargeBullet(playerAtkReference.spawnPoint, pelletCount, spreadAngle);
+            currentCoachCharge = 0;
+            return;
+        }
+        else if (currentCoachCharge > midChargeTime && currentCoachCharge < maxChargeTime)
+        {
+            var data = WeaponData;
+            currentBulletUse.Damage = data.damage * midDamageMult;
+
+            ReleaseChargeBullet(playerAtkReference.spawnPoint, midPelletCount, midSpreedRange);
+            currentCoachCharge = 0;
+            return;
+        }
+        else if (currentCoachCharge > maxChargeTime)
+        {
+            var data = WeaponData;
+            currentBulletUse.Damage = data.damage * maxDamageMult;
+
+            ReleaseChargeBullet(playerAtkReference.spawnPoint, maxPelletCount, maxSpreedRange);
+            currentCoachCharge = 0;
+            return;
+        }
     }
 
     public void Attack()
@@ -198,6 +173,84 @@ public class Coach_Weapon : MonoBehaviour, IWeapons
             waitToFire = 0;
         }
     }
+
+    public void Shoot(Transform spawnPoint)
+    {
+        if (IsReloading) return;
+        if (spawnPoint == null) return;
+
+        if (unlockedLegacy == false)
+        {
+            if(currentEnemiesDefetead >= requireEnemyDefetead)
+            {
+                EventBus.Publish(new OnUpdatedCoachLegado());
+                Debug.Log("Legado de Coach desbloqueado");
+            }
+            else
+            {
+                currentEnemiesDefetead = 0;
+            }
+
+            var data = WeaponData;
+            currentBulletUse.Damage = data.damage;
+
+            RealeasedBullet(spawnPoint);
+        }
+    }
+
+    private void RealeasedBullet(Transform spawnPoint)
+    {
+        float angleStep = pelletCount > 1 ? spreadAngle / (pelletCount - 1) : 0f;
+        float startAngle = -spreadAngle / 2f;
+
+        for (int i = 0; i < pelletCount; i++)
+        {
+            float currentAngle = startAngle + angleStep * i;
+
+            Quaternion spreadRotation = Quaternion.AngleAxis(currentAngle, Vector3.up);
+            Quaternion finalRotation = spreadRotation * spawnPoint.rotation;
+
+            BulletPool.ShootObject(spawnPoint.position, finalRotation, currentBulletUse);
+        }
+
+        CurrentAmmunition -= CurrentAmmunition;
+
+        if (CurrentAmmunition == 0)
+        {
+            IsReloading = true;
+            EventBus.Publish(new OnReloadEvent(reloadTime));
+        }
+    }
+
+    private void ReleaseChargeBullet(Transform spawnPoint, int newPelletCount, float newSpreadAngle)
+    {
+        float angleStep = newPelletCount > 1 ? newSpreadAngle / (newPelletCount - 1) : 0f;
+        float startAngle = -newSpreadAngle / 2f;
+
+        for (int i = 0; i < newPelletCount; i++)
+        {
+            float currentAngle = startAngle + angleStep * i;
+
+            Quaternion spreadRotation = Quaternion.AngleAxis(currentAngle, Vector3.up);
+            Quaternion finalRotation = spreadRotation * spawnPoint.rotation;
+
+            BulletPool.ShootObject(spawnPoint.position, finalRotation, currentBulletUse);
+        }
+
+        CurrentAmmunition -= CurrentAmmunition;
+
+        if (CurrentAmmunition == 0)
+        {
+            IsReloading = true;
+            EventBus.Publish(new OnReloadEvent(reloadTime));
+        }
+    }
+
+    public void RestockBullets()
+    {
+        currentAmmunition = weaponData.ammun;
+    }
+
     public void ChargeTimers()
     {
         if (waitToFire <= rateOfFire)
@@ -241,5 +294,6 @@ public class Coach_Weapon : MonoBehaviour, IWeapons
     private void UpdateCurrentBullet(OnUnlockCoachLegado unlockEvent)
     {
         currentBulletUse = legadoBulletData;
-    }
+        unlockedLegacy = true;
+}
 }

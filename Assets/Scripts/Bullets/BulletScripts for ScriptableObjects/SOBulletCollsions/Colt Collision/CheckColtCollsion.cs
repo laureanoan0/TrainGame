@@ -1,7 +1,7 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "WinchesterBulletCollisionSO", menuName = "Weapons/Type of collsion/Winchester bullet collsion")]
-public class WinchestertCollsionSO : BulletCollsionTypeSO
+[CreateAssetMenu(fileName = "CheckColtCollisionSO", menuName = "Weapons/Type of collsion/Check Colt collision")]
+public class CheckColtCollsion : BulletCollsionTypeSO
 {
     public override void BulletCollision(Enemy enemy, BulletScript bulletInfo)
     {
@@ -9,7 +9,7 @@ public class WinchestertCollsionSO : BulletCollsionTypeSO
 
         if (enemyDead)
         {
-            EventBus.Publish(new OnWinchesterDetectedDeadEnemy());
+            EventBus.Publish(new OnColtDetectedDeadEnemy(1));
         }
 
         if (bulletInfo.DestroyOnEnemy)
