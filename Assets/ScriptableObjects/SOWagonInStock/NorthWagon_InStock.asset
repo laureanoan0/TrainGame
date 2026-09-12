@@ -17,4 +17,4 @@ MonoBehaviour:
   price: 12
   description: Increases the damage of Bronco, turrets, and hired guns. "The North
     hardens every soul."
-  shopModel: {fileID: 4710809799844137450, guid: d8b84ad2d6fb6ee458f27aec33deb40f, type: 3}
+  shopModel: {fileID: 4710809799844137450, guid: 3623f2320ecc0364ebe0e41366ddc767, type: 3}
